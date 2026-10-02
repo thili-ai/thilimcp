@@ -20,7 +20,9 @@ def mcp_server():
 async def test_lists_every_primitive(mcp_server):
     async with sdk_client.connect(mcp_server) as mcp_client:
         names = await sdk_client.list_everything(mcp_client)
-    assert set(names["tools"]) == {"get_order", "search_products", "list_customer_orders"}
+    assert set(names["tools"]) == {
+        "get_order", "search_products", "list_customer_orders", "get_order_items",
+    }
     assert "shop://products" in names["resources"]
     assert "summarize_customer_history" in names["prompts"]
 
@@ -29,6 +31,20 @@ async def test_known_order_123_exists(mcp_server):
     async with sdk_client.connect(mcp_server) as mcp_client:
         order = await sdk_client.call(mcp_client, "get_order", order_id=123)
     assert order["id"] == 123
+
+
+async def test_order_items_links_order_to_product_category(mcp_server):
+    async with sdk_client.connect(mcp_server) as mcp_client:
+        items = await sdk_client.call(mcp_client, "get_order_items", order_id=79)
+    assert len(items["result"]) == 1
+    assert items["result"][0]["category"] == "electronics"
+
+
+async def test_order_items_missing_order_fails_honestly(mcp_server):
+    async with sdk_client.connect(mcp_server) as mcp_client:
+        result = await mcp_client.call_tool("get_order_items", {"order_id": 999999})
+    assert result.is_error is True
+    assert "999999" in result.content[0].text
 
 
 async def test_priya_shah_has_three_orders(mcp_server):

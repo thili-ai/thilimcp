@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "thilimcp"
-version = "0.1.0"
+version = "0.2.0"
 description = "A small, hackable MCP server (tools, resources, a prompt template, two transports) and a hand-rolled MCP-to-Claude bridge — the reference implementation for the Learn Fast course 'Build an MCP Server'."
 readme = "README.md"
 license = "MIT"
