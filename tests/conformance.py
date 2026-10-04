@@ -40,6 +40,14 @@ async def test_order_items_links_order_to_product_category(mcp_server):
     assert items["result"][0]["category"] == "electronics"
 
 
+async def test_order_items_includes_price_and_tax(mcp_server):
+    async with sdk_client.connect(mcp_server) as mcp_client:
+        items = await sdk_client.call(mcp_client, "get_order_items", order_id=79)
+    item = items["result"][0]
+    assert item["price_cents"] > 0
+    assert item["tax_rate_percent"] == 8  # electronics
+
+
 async def test_order_items_missing_order_fails_honestly(mcp_server):
     async with sdk_client.connect(mcp_server) as mcp_client:
         result = await mcp_client.call_tool("get_order_items", {"order_id": 999999})

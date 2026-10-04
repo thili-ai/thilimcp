@@ -16,6 +16,9 @@ from faker import Faker
 SCHEMA_PATH = Path(__file__).parent / "schema.sql"
 
 RETURN_WINDOWS = {"electronics": 15, "clothing": 30, "perishables": 0}
+# A fixed per-category lookup, same shape as RETURN_WINDOWS — not a random draw, so adding it
+# consumes zero random numbers and leaves every price/date/assignment already seeded unchanged.
+TAX_RATES = {"electronics": 8, "clothing": 5, "perishables": 0}
 PRODUCT_NAMES = {
     "electronics": ["Wireless Earbuds", "Bluetooth Speaker", "Laptop Stand", "USB-C Hub",
                     "Webcam", "Mechanical Keyboard", "Portable SSD", "Smart Watch",
@@ -46,9 +49,10 @@ def seed_shop(db_path: str = "shop.db") -> sqlite3.Connection:
     for category, names in PRODUCT_NAMES.items():
         for name in names:
             conn.execute(
-                "INSERT INTO products (id, name, category, price_cents, return_window_days) "
-                "VALUES (?,?,?,?,?)",
-                (product_id, name, category, random.randint(999, 29999), RETURN_WINDOWS[category]),
+                "INSERT INTO products (id, name, category, price_cents, return_window_days, tax_rate_percent) "
+                "VALUES (?,?,?,?,?,?)",
+                (product_id, name, category, random.randint(999, 29999), RETURN_WINDOWS[category],
+                 TAX_RATES[category]),
             )
             product_id += 1
     n_products = product_id - 1

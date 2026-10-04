@@ -3,7 +3,8 @@ CREATE TABLE products (
     name TEXT NOT NULL,
     category TEXT NOT NULL CHECK (category IN ('electronics', 'clothing', 'perishables')),
     price_cents INTEGER NOT NULL,
-    return_window_days INTEGER NOT NULL
+    return_window_days INTEGER NOT NULL,
+    tax_rate_percent INTEGER NOT NULL DEFAULT 0
 );
 
 CREATE TABLE customers (

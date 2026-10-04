@@ -35,9 +35,15 @@ handling layer on top of it without rewriting it.
 `get_order_items` (`server/tools.py`) was added after "Build an MCP Server" shipped — that
 course's own lessons never needed an order's line items, only the order itself. The next course in
 this path, **"Build an A2A Agent,"** does: answering whether an order is still returnable needs to
-know which product category it actually contains, and nothing else here exposed that link. This is
-the intended shape of a reference repo that gets reused, not re-taught — it grows when a real
-downstream consumer needs something new, not speculatively ahead of one.
+know which product category it actually contains, and nothing else here exposed that link.
+
+`get_order_items`'s own output grew again for **"Orchestrate a Multi-Agent System"** — a `price_cents`
+and `tax_rate_percent` per line item, so a new Refund Agent has a real amount to compute. Both
+fields come straight from `products` (`tax_rate_percent` is a fixed per-category value, seeded the
+same way `return_window_days` already was — not a new random draw, so every order's existing price
+and date stay exactly as earlier courses verified them). This is the intended shape of a reference
+repo that gets reused, not re-taught — it grows when a real downstream consumer needs something
+new, not speculatively ahead of one.
 
 ## Quickstart (no API key)
 

@@ -8,6 +8,11 @@
 consumer (that course's own lessons) never needed an order's line items, only the order itself.
 `lfagentinfra-lfa2a`'s Order Agent does: answering "is this order still returnable" needs to know
 which product category an order actually contains, and nothing else here exposes that link.
+
+`price_cents` and `tax_rate_percent` were added to `get_order_items`'s own output later still, for
+`lfagentinfra-lforchestrate`'s Refund Agent — it needs a real amount to refund, and this tool
+already had everything else about a line item. The tool computes nothing; it exposes the facts
+`products` already held, same as every earlier addition here.
 """
 import sqlite3
 from typing import Any
@@ -43,13 +48,14 @@ def register_tools(mcp_server: MCPServer, conn: sqlite3.Connection) -> None:
 
     @mcp_server.tool()
     def get_order_items(order_id: int) -> list[dict[str, Any]]:
-        """List one order's line items, each with its product's name, category, and return
-        window in days. An order can span more than one category — this returns every item,
-        not a single summarized answer."""
+        """List one order's line items: product name, category, return window, unit price in
+        cents, tax rate, and quantity. An order can span more than one category — this returns
+        every item, not a single summarized answer."""
         if conn.execute("SELECT 1 FROM orders WHERE id = ?", (order_id,)).fetchone() is None:
             raise not_found("order", order_id)
         rows = conn.execute(
-            "SELECT p.id AS product_id, p.name, p.category, p.return_window_days, oi.quantity "
+            "SELECT p.id AS product_id, p.name, p.category, p.return_window_days, "
+            "p.price_cents, p.tax_rate_percent, oi.quantity "
             "FROM order_items oi JOIN products p ON p.id = oi.product_id "
             "WHERE oi.order_id = ?", (order_id,),
         ).fetchall()
